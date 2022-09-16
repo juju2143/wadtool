@@ -32,8 +32,10 @@ wadtool ls -i D:\wads\andy.ind -w D:\wads\andy.wad
 wadtool extract -i D:\wads\andy.ind -w D:\wads\andy.wad -o Wowww.jo3 D/B/B/WOWWW
 ```
 
-## TODO
+## Links
 
-- [ ] Ability to unpack and repack whole tree
-- [ ] Nice cross-platform GUI
-- [ ] Find and test every version of MTVMG this should be compatible with
+- [Feature list](https://github.com/juju2143/wadtool/discussions/1)
+- [Documentation](https://github.com/juju2143/wadtool/wiki)
+- [Submit a bug report](https://github.com/juju2143/wadtool/issues/new)
+- [Discuss about it and get help](https://github.com/juju2143/wadtool/discussions)
+- [Music 2000 Community Discord Server](https://discord.gg/n8DNzxQ)

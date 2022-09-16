@@ -16,36 +16,6 @@ namespace WadTool
             WadFile = wad;
             Index = new FolderInfo(IndFile, WadFile);
         }
-        public void PrintTree() => PrintTree(Index.RootFolder, "", true);
-        public void PrintTree(FolderEntry tree, string indent, bool last, bool first = false)
-        {
-            if(tree.LongName != null)
-                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", Decode(tree.LongName), Decode(tree.Name));
-            else
-                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", Decode(tree.Name));
-            indent += last ? "    " : "│   ";
-            if(tree.IsFileFolder)
-            {
-                FileList list = tree.Files;
-                for(int i = 0; i < list.Files.Count; i++)
-                    PrintTree(list.Files[i], indent, i == list.Files.Count - 1);
-            }
-            else
-            {
-                for(int i = 0; i < tree.Folders.Count; i++)
-                    PrintTree(tree.Folders[i], indent, i == tree.Folders.Count - 1, i == 0);
-            }
-        }
-        public void PrintTree(FileEntry tree, string indent, bool last)
-        {
-            if(tree.LongName != null)
-                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", Decode(tree.LongName), Decode(tree.Name));
-            else
-                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", Decode(tree.Name));
-
-            Console.WriteLine("{0}{1}Offset: 0x{2:X}", indent, last ? "    " : "│   ", tree.Offset);
-            Console.WriteLine("{0}{1}Size: 0x{2:X}", indent, last ? "    " : "│   ", tree.Size);
-        }
         public static string Decode(byte[] name) => name == null ? null : Encoding.ASCII.GetString(name).Trim('\0').Replace('\0', '.');
         public FileEntry GetFile(string path)
         {
