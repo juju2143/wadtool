@@ -34,6 +34,7 @@ wadtool extract -i D:\wads\andy.ind -w D:\wads\andy.wad -o Wowww.jo3 D/B/B/WOWWW
 
 ## Links
 
+- [Nightly builds](https://nightly.link/juju2143/wadtool/workflows/main/master/nightly)
 - [Feature list](https://github.com/juju2143/wadtool/discussions/1)
 - [Documentation](https://github.com/juju2143/wadtool/wiki)
 - [Submit a bug report](https://github.com/juju2143/wadtool/issues/new)
