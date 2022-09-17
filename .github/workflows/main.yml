@@ -23,14 +23,14 @@ jobs:
       run: dotnet restore -r osx-x64
     - name: Restore dependencies (Linux)
       run: dotnet restore -r linux-x64
-    - name: Build library
-      run: dotnet pack --no-restore -c Release WadLib
-    - name: Build for Windows
-      run: dotnet publish --no-restore -c Release -r win-x64
-    - name: Build for macOS
-      run: dotnet publish --no-restore -c Release -r osx-x64
-    - name: Build for Linux
-      run: dotnet publish --no-restore -c Release -r linux-x64
+    - name: Publish for Windows
+      run: dotnet publish -c Release -r win-x64
+    - name: Publish for macOS
+      run: dotnet publish -c Release -r osx-x64
+    - name: Publish for Linux
+      run: dotnet publish -c Release -r linux-x64
+    - name: Pack library
+      run: dotnet pack -c Release WadLib
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
