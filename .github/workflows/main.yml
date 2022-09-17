@@ -17,26 +17,31 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Restore dependencies (Windows)
-      run: dotnet restore -r win-x64
-    - name: Restore dependencies (macOS)
-      run: dotnet restore -r osx-x64
-    - name: Restore dependencies (Linux)
-      run: dotnet restore -r linux-x64
-    - name: Publish for Windows
+    - name: Publish for win-x64
       run: dotnet publish -c Release -r win-x64
-    - name: Publish for macOS
+    - name: Publish for osx-x64
       run: dotnet publish -c Release -r osx-x64
-    - name: Publish for Linux
+    - name: Publish for linux-x64
       run: dotnet publish -c Release -r linux-x64
     - name: Pack library
       run: dotnet pack -c Release WadLib
-    - name: Upload a Build Artifact
+    - name: Upload nupkg
       uses: actions/upload-artifact@v3.1.0
       with:
-        name: nightly
-        path: |
-          WadLib/bin/Release/*.nupkg
-          WadTool/bin/Release/net6.0/win-x64/publish/
-          WadTool/bin/Release/net6.0/osx-x64/publish/
-          WadTool/bin/Release/net6.0/linux-x64/publish/
+        name: nightly-nupkg
+        path: WadLib/bin/Release/*.nupkg
+    - name: Upload win-x64 build
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: nightly-win-x64
+        path: WadTool/bin/Release/net6.0/win-x64/publish/wadtool.exe
+    - name: Upload osx-x64 build
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: nightly-osx-x64
+        path: WadTool/bin/Release/net6.0/osx-x64/publish/wadtool
+    - name: Upload linux-x64 build
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: nightly-linux-x64
+        path: WadTool/bin/Release/net6.0/linux-x64/publish/wadtool

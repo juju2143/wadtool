@@ -32,9 +32,16 @@ wadtool ls -i D:\wads\andy.ind -w D:\wads\andy.wad
 wadtool extract -i D:\wads\andy.ind -w D:\wads\andy.wad -o Wowww.jo3 D/B/B/WOWWW
 ```
 
+## Download
+
+| Platform | Nightly |
+|----------|---------|
+| Windows (x64) | [Latest](https://nightly.link/juju2143/wadtool/workflows/main/master/nightly-win-x64.zip)
+| macOS (x64) | [Latest](https://nightly.link/juju2143/wadtool/workflows/main/master/nightly-osx-x64.zip)
+| Linux (x64) | [Latest](https://nightly.link/juju2143/wadtool/workflows/main/master/nightly-linux-x64.zip)
+| NuGet package | [Latest](https://nightly.link/juju2143/wadtool/workflows/main/master/nightly-nupkg.zip)
 ## Links
 
-- [Nightly builds](https://nightly.link/juju2143/wadtool/workflows/main/master/nightly)
 - [Feature list](https://github.com/juju2143/wadtool/discussions/1)
 - [Documentation](https://github.com/juju2143/wadtool/wiki)
 - [Submit a bug report](https://github.com/juju2143/wadtool/issues/new)
