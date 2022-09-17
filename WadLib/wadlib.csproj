@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <PackageId>WadTool.WadLib</PackageId>
-    <Version>0.0.1</Version>
     <Authors>J. P. "Yuki" Savard</Authors>
     <Company>a39.ca</Company>
 
@@ -27,6 +26,13 @@
     <Content Include="*.pdb">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>        
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Version="5.10.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
