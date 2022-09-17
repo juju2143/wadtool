@@ -15,16 +15,21 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
+
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.7
+      uses: gittools/actions/gitversion/setup@v0.9.13
       with:
         versionSpec: '5.x'
+
     - name: Determine Version
-      uses: gittools/actions/gitversion/execute@v0.9.7
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.13
+
     - name: Publish for win-x64
       run: dotnet publish -c Release -r win-x64
     - name: Publish for osx-x64
@@ -33,6 +38,7 @@ jobs:
       run: dotnet publish -c Release -r linux-x64
     - name: Pack library
       run: dotnet pack -c Release WadLib
+
     - name: Upload nupkg
       uses: actions/upload-artifact@v3.1.0
       with:
