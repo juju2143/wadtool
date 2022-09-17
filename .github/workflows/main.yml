@@ -17,8 +17,12 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Restore dependencies (Windows)
+      run: dotnet restore -r win-x64
+    - name: Restore dependencies (macOS)
+      run: dotnet restore -r osx-x64
+    - name: Restore dependencies (Linux)
+      run: dotnet restore -r linux-x64
     - name: Build library
       run: dotnet pack --no-restore -c Release WadLib
     - name: Build for Windows
