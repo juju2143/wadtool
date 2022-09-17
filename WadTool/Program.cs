@@ -21,10 +21,12 @@ namespace WadTool
 
             var extractCommand = new Command("extract", "Extract from WAD");
             var outputOption = new Option<FileSystemInfo>(new string[2]{"-o", "--output"}, "Output (if not specified, defaults to standard output)") { IsRequired = false };
+            var namelistOption = new Option<bool>(new string[2]{"-n", "--namelist"}, "Include namelist");
             var fileArgument = new Argument<string>("file", "File to extract from WAD") { Arity = ArgumentArity.ZeroOrOne };
             extractCommand.AddOption(outputOption);
+            extractCommand.AddOption(namelistOption);
             extractCommand.AddArgument(fileArgument);
-            extractCommand.SetHandler(Extract, indOption, wadOption, outputOption, fileArgument);
+            extractCommand.SetHandler(Extract, indOption, wadOption, outputOption, namelistOption, fileArgument);
             rootCommand.AddCommand(extractCommand);
 
             var dirCommand = new Command("dir", "Directory structure");
@@ -71,7 +73,7 @@ namespace WadTool
             Console.WriteLine("{0}{1}Offset: 0x{2:X}", indent, last ? "    " : "│   ", tree.Offset);
             Console.WriteLine("{0}{1}Size: 0x{2:X}", indent, last ? "    " : "│   ", tree.Size);
         }
-        public static void Extract(FileInfo ind, FileInfo wad, FileSystemInfo output, string file)
+        public static void Extract(FileInfo ind, FileInfo wad, FileSystemInfo output, bool namelist, string file)
         {
             var wp = new WadPackage(ind, wad);
             if(file != null)
@@ -127,7 +129,7 @@ namespace WadTool
                 if(output is DirectoryInfo)
                 {
                     dir = (DirectoryInfo)output;
-                    ExtractTree(wp.WadFile, node, dir);
+                    ExtractTree(wp.WadFile, node, dir, namelist);
                 }
                 else
                 {
@@ -135,7 +137,7 @@ namespace WadTool
                 }
             }
         }
-        public static void ExtractTree(BinaryReader wad, FolderEntry tree, DirectoryInfo root)
+        public static void ExtractTree(BinaryReader wad, FolderEntry tree, DirectoryInfo root, bool namelist)
         {
             string name = tree.LongName != null ? WadPackage.Decode(tree.LongName) : WadPackage.Decode(tree.Name);
 
@@ -149,12 +151,13 @@ namespace WadTool
             {
                 FileList list = tree.Files;
                 for(int i = 0; i < list.Files.Count; i++)
-                    ExtractTree(wad, list.Files[i], subdir);
+                    if(WadPackage.Decode(list.Files[i].Name) != "NAMELIST" || namelist)
+                        ExtractTree(wad, list.Files[i], subdir);
             }
             else
             {
                 for(int i = 0; i < tree.Folders.Count; i++)
-                    ExtractTree(wad, tree.Folders[i], subdir);
+                    ExtractTree(wad, tree.Folders[i], subdir, namelist);
             }
         }
         public static void ExtractTree(BinaryReader wad, FileEntry tree, DirectoryInfo root)
