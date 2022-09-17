@@ -1,6 +1,6 @@
-namespace WadTool
+namespace WadTool.WadLib
 {
-    class FolderInfo
+    public class FolderInfo
     {
         public byte[] Name; // 0x20 bytes
         public UInt32 Unknown1;
@@ -22,7 +22,7 @@ namespace WadTool
             RootFolder = new FolderEntry(ind, wad);
         }
     }
-    class FolderEntry // 16 bytes
+    public class FolderEntry // 16 bytes
     {
         public byte[] Name; // 8 bytes
         public byte[] LongName;
@@ -76,7 +76,7 @@ namespace WadTool
             get => Folders.Where(f => WadPackage.Decode(f.Name) == index || WadPackage.Decode(f.LongName!) == index).Single();
         }
     }
-    class OffsetSize
+    public class OffsetSize
     {
         UInt32 Value;
         public OffsetSize(UInt32 value)
@@ -90,7 +90,7 @@ namespace WadTool
             get => (Value & 0xFFF80000) >> 8;
         }
     }
-    class FileList
+    public class FileList
     {
         public byte[] Name; // 32 bytes
         public byte[] ParentName; // 32 bytes
@@ -122,7 +122,7 @@ namespace WadTool
             get => Files.Where(f => WadPackage.Decode(f.Name) == index || WadPackage.Decode(f.LongName!) == index).Single();
         }
     }
-    class FileEntry
+    public class FileEntry
     {
         public byte[] Name; // 8 bytes
         public byte[] LongName; // 32 bytes

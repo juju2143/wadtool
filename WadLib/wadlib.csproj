@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>WadTool.WadLib</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>J. P. "Yuki" Savard</Authors>
+    <Company>a39.ca</Company>
+
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+</Project>

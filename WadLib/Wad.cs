@@ -1,8 +1,8 @@
 using System.Text;
 
-namespace WadTool
+namespace WadTool.WadLib
 {
-    class WadPackage
+    public class WadPackage
     {
         public BinaryReader IndFile;
         public BinaryReader WadFile;

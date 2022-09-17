@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wadlib", "WadLib\wadlib.csproj", "{721CEB08-6742-40C6-AAAE-780C232BAAA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wadtool", "WadTool\wadtool.csproj", "{DA1D7640-46EA-482C-BEBE-F70AEA428258}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{721CEB08-6742-40C6-AAAE-780C232BAAA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{721CEB08-6742-40C6-AAAE-780C232BAAA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{721CEB08-6742-40C6-AAAE-780C232BAAA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{721CEB08-6742-40C6-AAAE-780C232BAAA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA1D7640-46EA-482C-BEBE-F70AEA428258}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA1D7640-46EA-482C-BEBE-F70AEA428258}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA1D7640-46EA-482C-BEBE-F70AEA428258}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA1D7640-46EA-482C-BEBE-F70AEA428258}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

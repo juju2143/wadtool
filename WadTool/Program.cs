@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using WadTool.WadLib;
 
 namespace WadTool
 {
