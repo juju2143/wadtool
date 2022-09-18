@@ -20,9 +20,9 @@ namespace WadTool
             rootCommand.AddCommand(treeCommand);
 
             var extractCommand = new Command("extract", "Extract from WAD");
-            var outputOption = new Option<FileSystemInfo>(new string[2]{"-o", "--output"}, "Output (if not specified, defaults to standard output)") { IsRequired = false };
+            var outputOption = new Option<FileSystemInfo>(new string[2]{"-o", "--output"}, "Output directory. If not specified, defaults to the current directory. Use - for stdout.") { IsRequired = false };
             var namelistOption = new Option<bool>(new string[2]{"-n", "--namelist"}, "Include namelist");
-            var fileArgument = new Argument<string>("file", "File to extract from WAD") { Arity = ArgumentArity.ZeroOrOne };
+            var fileArgument = new Argument<string>("file", "File to extract from WAD. With no file specified, extracts the entire directory structure to output directory.") { Arity = ArgumentArity.ZeroOrOne };
             extractCommand.AddOption(outputOption);
             extractCommand.AddOption(namelistOption);
             extractCommand.AddArgument(fileArgument);
@@ -76,10 +76,16 @@ namespace WadTool
         public static void Extract(FileInfo ind, FileInfo wad, FileSystemInfo output, bool namelist, string file)
         {
             var wp = new WadPackage(ind, wad);
+
+            if(output == null)
+            {
+                output = new DirectoryInfo(Directory.GetCurrentDirectory());
+            }
+
             if(file != null)
             {
                 byte[] buf = wp.GetBytes(file);
-                if(output == null)
+                if(output.Name == "-")
                 {
                     using (Stream stdout = Console.OpenStandardOutput())
                     {
@@ -118,11 +124,6 @@ namespace WadTool
                     {
                         node = node[dirs[i]];
                     }
-                }
-
-                if(output == null)
-                {
-                    output = new DirectoryInfo(Directory.GetCurrentDirectory());
                 }
 
                 DirectoryInfo dir;

@@ -29,7 +29,7 @@ dotnet build
 wadtool --help
 wadtool tree -i D:\wads\andy.ind -w D:\wads\andy.wad
 wadtool ls -i D:\wads\andy.ind -w D:\wads\andy.wad
-wadtool extract -i D:\wads\andy.ind -w D:\wads\andy.wad -o Wowww.jo3 D/B/B/WOWWW
+wadtool extract --help
 ```
 
 ## Download
