@@ -73,7 +73,7 @@ namespace WadTool.WadLib
         }
         public FolderEntry this[string index]
         {
-            get => Folders.Where(f => WadPackage.Decode(f.Name) == index || WadPackage.Decode(f.LongName!) == index).Single();
+            get => Folders.Where(f => WadUtils.Decode(f.Name) == index || WadUtils.Decode(f.LongName!) == index).Single();
         }
     }
     public class OffsetSize
@@ -119,7 +119,7 @@ namespace WadTool.WadLib
         }
         public FileEntry this[string index]
         {
-            get => Files.Where(f => WadPackage.Decode(f.Name) == index || WadPackage.Decode(f.LongName!) == index).Single();
+            get => Files.Where(f => WadUtils.Decode(f.Name) == index || WadUtils.Decode(f.LongName!) == index).Single();
         }
     }
     public class FileEntry

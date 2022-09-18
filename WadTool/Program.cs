@@ -41,15 +41,15 @@ namespace WadTool
         public static void Tree(FileInfo ind, FileInfo wad)
         {
             var wp = new WadPackage(ind, wad);
-            Console.WriteLine(WadPackage.Decode(wp.Index.Name));
+            Console.WriteLine(WadUtils.Decode(wp.Index.Name));
             PrintTree(wp.Index.RootFolder);
         }
         public static void PrintTree(FolderEntry tree, string indent = "", bool last = true)
         {
             if(tree.LongName != null)
-                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadPackage.Decode(tree.LongName), WadPackage.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.LongName), WadUtils.Decode(tree.Name));
             else
-                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadPackage.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.Name));
             indent += last ? "    " : "│   ";
             if(tree.IsFileFolder)
             {
@@ -66,9 +66,9 @@ namespace WadTool
         public static void PrintTree(FileEntry tree, string indent, bool last)
         {
             if(tree.LongName != null)
-                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadPackage.Decode(tree.LongName), WadPackage.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.LongName), WadUtils.Decode(tree.Name));
             else
-                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadPackage.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.Name));
 
             Console.WriteLine("{0}{1}Offset: 0x{2:X}", indent, last ? "    " : "│   ", tree.Offset);
             Console.WriteLine("{0}{1}Size: 0x{2:X}", indent, last ? "    " : "│   ", tree.Size);
@@ -140,7 +140,7 @@ namespace WadTool
         }
         public static void ExtractTree(BinaryReader wad, FolderEntry tree, DirectoryInfo root, bool namelist)
         {
-            string name = tree.LongName != null ? WadPackage.Decode(tree.LongName) : WadPackage.Decode(tree.Name);
+            string name = tree.LongName != null ? WadUtils.Decode(tree.LongName) : WadUtils.Decode(tree.Name);
 
             DirectoryInfo subdir;
             if(name == "")
@@ -152,7 +152,7 @@ namespace WadTool
             {
                 FileList list = tree.Files;
                 for(int i = 0; i < list.Files.Count; i++)
-                    if(WadPackage.Decode(list.Files[i].Name) != "NAMELIST" || namelist)
+                    if(WadUtils.Decode(list.Files[i].Name) != "NAMELIST" || namelist)
                         ExtractTree(wad, list.Files[i], subdir);
             }
             else
@@ -163,7 +163,7 @@ namespace WadTool
         }
         public static void ExtractTree(BinaryReader wad, FileEntry tree, DirectoryInfo root)
         {
-            string name = tree.LongName != null ? WadPackage.Decode(tree.LongName) : WadPackage.Decode(tree.Name);
+            string name = tree.LongName != null ? WadUtils.Decode(tree.LongName) : WadUtils.Decode(tree.Name);
 
             var file = new FileInfo(Path.Combine(root.FullName, name));
 
@@ -199,8 +199,8 @@ namespace WadTool
                 }
             }
 
-            Console.WriteLine("Name: {0}", WadPackage.Decode(node.Name));
-            if(node.LongName != null) Console.WriteLine("Long name: {0}", WadPackage.Decode(node.LongName));
+            Console.WriteLine("Name: {0}", WadUtils.Decode(node.Name));
+            if(node.LongName != null) Console.WriteLine("Long name: {0}", WadUtils.Decode(node.LongName));
 
             if(node.IsFileFolder)
             {
@@ -213,7 +213,7 @@ namespace WadTool
                 for(int i = 0; i < node.Files.NumFiles; i++)
                 {
                     FileEntry child = node.Files.Files[i];
-                    Console.WriteLine("{0,8:X} {1,8} {2,8} {3}", child.Offset, WadPackage.Decode(child.Name), child.Size, WadPackage.Decode(child.LongName));
+                    Console.WriteLine("{0,8:X} {1,8} {2,8} {3}", child.Offset, WadUtils.Decode(child.Name), child.Size, WadUtils.Decode(child.LongName));
                 }
             }
             else
@@ -227,14 +227,14 @@ namespace WadTool
                     FolderEntry child = node.Folders[i];
                     if(child.IsFileFolder)
                     {
-                        Console.WriteLine("{0,6} {1,8} {2,8:X} {3,8} {4}", child.Index, WadPackage.Decode(child.Name), child.Offset.Offset, child.Offset.Size, WadPackage.Decode(child.LongName));
+                        Console.WriteLine("{0,6} {1,8} {2,8:X} {3,8} {4}", child.Index, WadUtils.Decode(child.Name), child.Offset.Offset, child.Offset.Size, WadUtils.Decode(child.LongName));
                     }
                     else
                     {
                         if(child.LongName != null)
-                            Console.WriteLine("{0,6} {1,8} {2,17} {3}", child.Index, WadPackage.Decode(child.Name), "", WadPackage.Decode(child.LongName));
+                            Console.WriteLine("{0,6} {1,8} {2,17} {3}", child.Index, WadUtils.Decode(child.Name), "", WadUtils.Decode(child.LongName));
                         else
-                            Console.WriteLine("{0,6} {1,8}", child.Index, WadPackage.Decode(child.Name));
+                            Console.WriteLine("{0,6} {1,8}", child.Index, WadUtils.Decode(child.Name));
                     }
                 }
             }
