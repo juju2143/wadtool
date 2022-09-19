@@ -23,7 +23,6 @@ namespace WadTool.WadLib
             WadWriter = new BinaryWriter(WadFile);
             Index = new FolderInfo(IndReader, WadReader);
         }
-        public static string Decode(byte[] name) => name == null ? null : Encoding.ASCII.GetString(name).Trim('\0').Replace('\0', '.');
         public FileEntry GetFile(string path)
         {
             string[] dirs = path.Split('/');
@@ -57,7 +56,7 @@ namespace WadTool.WadLib
 
                 WadFile.Seek(file.Pointer + 12, SeekOrigin.Begin);
                 WadFile.Write(size);
-                
+
                 WadFile.Seek(file.Pointer + 12, SeekOrigin.Begin);
                 WadFile.Write(size);
             }

@@ -36,6 +36,8 @@ wadtool ls -i D:\wads\andy.ind -w D:\wads\andy.wad
 wadtool extract --help
 # extract all assets! 
 wadtool extract -i D:\wads\andy.ind -w D:\wads\andy.wad
+# replace the welcome screen text
+wadtool replace -i D:\wads\andy.ind -w D:\wads\andy.wad HELPUS/english/101/000 welcome.txt
 ```
 
 ## Download
