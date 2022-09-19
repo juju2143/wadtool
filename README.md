@@ -14,8 +14,8 @@ A collection of tools to extract files from an IND/WAD package for MTV Music Gen
 
 ### Ingredients
 
-- .NET 6 or later
-- A legitimate copy of one of the above titles
+- [.NET 6 or later](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- A legitimate copy[*!*](https://www.youtube.com/watch?v=dQw4w9WgXcQ) of one of the above titles
 
 ### Instructions
 
@@ -26,10 +26,16 @@ dotnet build
 ## Usage
 
 ```
+# display commands and options you can use:
 wadtool --help
+# show's all directories in tree style
 wadtool tree -i D:\wads\andy.ind -w D:\wads\andy.wad
+# show current single directory
 wadtool ls -i D:\wads\andy.ind -w D:\wads\andy.wad
+# display help screen for "extract" command
 wadtool extract --help
+# extract all assets! 
+wadtool extract -i D:\wads\andy.ind -w D:\wads\andy.wad
 ```
 
 ## Download
