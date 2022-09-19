@@ -34,6 +34,14 @@ namespace WadTool
             dirCommand.AddArgument(pathArgument);
             dirCommand.SetHandler(Dir, indOption, wadOption, pathArgument);
             rootCommand.AddCommand(dirCommand);
+
+            var replaceCommand = new Command("replace", "Replace a file inside the WAD");
+            var wadpathArgument = new Argument<string>("WAD path", "Path in the WAD to replace") { Arity = ArgumentArity.ExactlyOne };
+            var filepathArgument = new Argument<FileInfo>("file path", "Path in the filesystem to replace file with") { Arity = ArgumentArity.ExactlyOne };
+            replaceCommand.AddArgument(wadpathArgument);
+            replaceCommand.AddArgument(filepathArgument);
+            replaceCommand.SetHandler(Replace, indOption, wadOption, wadpathArgument, filepathArgument);
+            rootCommand.AddCommand(replaceCommand);
             
             return rootCommand.InvokeAsync(argv).Result;
         }

@@ -76,20 +76,6 @@ namespace WadTool.WadLib
             get => Folders.Where(f => WadUtils.Decode(f.Name) == index || WadUtils.Decode(f.LongName!) == index).Single();
         }
     }
-    public class OffsetSize
-    {
-        UInt32 Value;
-        public OffsetSize(UInt32 value)
-        {
-            Value = value;
-        }
-        public uint Offset {
-            get => (Value & 0x7FFFF) << 11;
-        }
-        public uint Size {
-            get => (Value & 0xFFF80000) >> 8;
-        }
-    }
     public class FileList
     {
         public byte[] Name; // 32 bytes
@@ -124,12 +110,14 @@ namespace WadTool.WadLib
     }
     public class FileEntry
     {
+        public long Pointer;
         public byte[] Name; // 8 bytes
         public byte[] LongName; // 32 bytes
         public UInt32 Offset;
         public UInt32 Size;
         public FileEntry(BinaryReader wad)
         {
+            Pointer = wad.BaseStream.Position;
             Name = wad.ReadBytes(8);
             Offset = wad.ReadUInt32() << 11;
             Size = wad.ReadUInt32();

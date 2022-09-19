@@ -61,7 +61,7 @@ namespace WadTool
                 if(output is DirectoryInfo)
                 {
                     dir = (DirectoryInfo)output;
-                    ExtractTree(wp.WadFile, node, dir, namelist);
+                    ExtractTree(wp.WadReader, node, dir, namelist);
                 }
                 else
                 {

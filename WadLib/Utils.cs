@@ -30,4 +30,20 @@ namespace WadTool.WadLib
             return n;
         }
     }
+    public class OffsetSize
+    {
+        UInt32 Value;
+        public OffsetSize(UInt32 value)
+        {
+            Value = value;
+        }
+        public uint Offset {
+            get => (Value & 0x7FFFF) << 11;
+            set => Value = (value >> 11) & (Size << 8);
+        }
+        public uint Size {
+            get => (Value & 0xFFF80000) >> 8;
+            set => Value = (Offset >> 11) & ((value >> 11) << 19);
+        }
+    }
 }

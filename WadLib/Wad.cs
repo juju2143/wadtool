@@ -4,17 +4,24 @@ namespace WadTool.WadLib
 {
     public class WadPackage
     {
-        public BinaryReader IndFile;
-        public BinaryReader WadFile;
+        public Stream IndFile;
+        public Stream WadFile;
+        public BinaryReader IndReader;
+        public BinaryReader WadReader;
+        public BinaryWriter IndWriter;
+        public BinaryWriter WadWriter;
         public FolderInfo Index;
-        public WadPackage(string ind, string wad) : this(File.OpenRead(ind), File.OpenRead(wad)) {}
-        public WadPackage(FileInfo ind, FileInfo wad) : this(ind.OpenRead(), wad.OpenRead()) {}
-        public WadPackage(FileStream ind, FileStream wad) : this(new BinaryReader(ind), new BinaryReader(wad)) {}
-        public WadPackage(BinaryReader ind, BinaryReader wad)
+        public WadPackage(string ind, string wad) : this(File.Open(ind, FileMode.OpenOrCreate, FileAccess.ReadWrite), File.Open(wad, FileMode.OpenOrCreate, FileAccess.ReadWrite)) {}
+        public WadPackage(FileInfo ind, FileInfo wad) : this(ind.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite), wad.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite)) {}
+        public WadPackage(Stream ind, Stream wad)
         {
             IndFile = ind;
             WadFile = wad;
-            Index = new FolderInfo(IndFile, WadFile);
+            IndReader = new BinaryReader(IndFile);
+            WadReader = new BinaryReader(WadFile);
+            IndWriter = new BinaryWriter(IndFile);
+            WadWriter = new BinaryWriter(WadFile);
+            Index = new FolderInfo(IndReader, WadReader);
         }
         public static string Decode(byte[] name) => name == null ? null : Encoding.ASCII.GetString(name).Trim('\0').Replace('\0', '.');
         public FileEntry GetFile(string path)
@@ -30,8 +37,34 @@ namespace WadTool.WadLib
         public byte[] GetBytes(string path)
         {
             FileEntry f = GetFile(path);
-            WadFile.BaseStream.Position = f.Offset;
-            return WadFile.ReadBytes((int)f.Size);
+            WadFile.Position = f.Offset;
+            return WadReader.ReadBytes((int)f.Size);
+        }
+        public void WriteFile(string path, Stream stream)
+        {
+            var file = GetFile(path);
+            int blocksize = (int)Math.Ceiling(file.Size/2048.0)*2048;
+            if(stream.Length <= blocksize)
+            {
+                byte[] clear = new byte[blocksize];
+                byte[] size = BitConverter.GetBytes((uint)stream.Length);
+
+                WadFile.Seek(file.Offset, SeekOrigin.Begin);
+                WadFile.Write(clear);
+
+                WadFile.Seek(file.Offset, SeekOrigin.Begin);
+                stream.CopyTo(WadFile);
+
+                WadFile.Seek(file.Pointer + 12, SeekOrigin.Begin);
+                WadFile.Write(size);
+                
+                WadFile.Seek(file.Pointer + 12, SeekOrigin.Begin);
+                WadFile.Write(size);
+            }
+            else
+            {
+                throw new IOException("Can't replace in-place yet");
+            }
         }
     }
 }
