@@ -4,7 +4,7 @@ namespace WadTool
 {
     partial class Program
     {
-        public static void Extract(FileInfo ind, FileInfo wad, FileSystemInfo output, bool namelist, string file)
+        public static void Extract(FileInfo ind, FileInfo wad, FileSystemInfo output, bool namelist, bool bogus, bool dryrun, string file)
         {
             var wp = new WadPackage(ind, wad);
 
@@ -15,31 +15,40 @@ namespace WadTool
 
             if(file != null)
             {
-                byte[] buf = wp.GetBytes(file);
-                if(output.Name == "-")
+                FileEntry fe = wp.GetFile(file);
+                if(wp.WadFile.Length < fe.Offset+fe.Size)
                 {
-                    using (Stream stdout = Console.OpenStandardOutput())
-                    {
-                        stdout.Write(buf, 0, buf.Length);
-                    }
+                    Console.Error.WriteLine("{0} @ 0x{1:X} seems to lie outside the WAD, an empty file will be written unless -b is given", fe.LongName, fe.Offset);
+                    if(bogus) return;
                 }
-                else
+                byte[] buf = wp.GetBytes(fe);
+                if(!dryrun)
                 {
-                    if(output is FileInfo)
+                    if(output.Name == "-")
                     {
-                        using (Stream fileout = ((FileInfo)output).Create())
+                        using (Stream stdout = Console.OpenStandardOutput())
                         {
-                            fileout.Write(buf, 0, buf.Length);
+                            stdout.Write(buf, 0, buf.Length);
                         }
                     }
                     else
                     {
-                        var name = file.Split('/').Last();
-                        var f = new FileInfo(Path.Combine(output.FullName, name));
-
-                        using (Stream fileout = f.Create())
+                        if(output is FileInfo)
                         {
-                            fileout.Write(buf, 0, buf.Length);
+                            using (Stream fileout = ((FileInfo)output).Create())
+                            {
+                                fileout.Write(buf, 0, buf.Length);
+                            }
+                        }
+                        else
+                        {
+                            var name = file.Split('/').Last();
+                            var f = new FileInfo(Path.Combine(output.FullName, name));
+
+                            using (Stream fileout = f.Create())
+                            {
+                                fileout.Write(buf, 0, buf.Length);
+                            }
                         }
                     }
                 }
@@ -61,7 +70,7 @@ namespace WadTool
                 if(output is DirectoryInfo)
                 {
                     dir = (DirectoryInfo)output;
-                    ExtractTree(wp.WadReader, node, dir, namelist);
+                    ExtractTree(wp.WadReader, node, dir, namelist, dryrun, bogus);
                 }
                 else
                 {
@@ -69,12 +78,12 @@ namespace WadTool
                 }
             }
         }
-        public static void ExtractTree(BinaryReader wad, FolderEntry tree, DirectoryInfo root, bool namelist)
+        public static void ExtractTree(BinaryReader wad, FolderEntry tree, DirectoryInfo root, bool namelist, bool dryrun, bool bogus)
         {
             string name = tree.LongName != null ? WadUtils.Decode(tree.LongName) : WadUtils.Decode(tree.Name);
 
             DirectoryInfo subdir;
-            if(name == "")
+            if(name == "" || dryrun)
                 subdir = root;
             else
                 subdir = root.CreateSubdirectory(name);
@@ -84,25 +93,32 @@ namespace WadTool
                 FileList list = tree.Files;
                 for(int i = 0; i < list.Files.Count; i++)
                     if(WadUtils.Decode(list.Files[i].Name) != "NAMELIST" || namelist)
-                        ExtractTree(wad, list.Files[i], subdir);
+                        ExtractTree(wad, list.Files[i], subdir, dryrun, bogus);
             }
             else
             {
                 for(int i = 0; i < tree.Folders.Count; i++)
-                    ExtractTree(wad, tree.Folders[i], subdir, namelist);
+                    ExtractTree(wad, tree.Folders[i], subdir, namelist, dryrun, bogus);
             }
         }
-        public static void ExtractTree(BinaryReader wad, FileEntry tree, DirectoryInfo root)
+        public static void ExtractTree(BinaryReader wad, FileEntry tree, DirectoryInfo root, bool dryrun, bool bogus)
         {
             string name = tree.LongName != null ? WadUtils.Decode(tree.LongName) : WadUtils.Decode(tree.Name);
 
-            var file = new FileInfo(Path.Combine(root.FullName, name));
+            if(wad.BaseStream.Length < tree.Offset+tree.Size)
+            {
+                if(bogus) return;
+            }
 
             var buf = tree.ReadFile(wad);
 
-            using(Stream fs = file.Create())
+            if(!dryrun)
             {
-                fs.Write(buf, 0, buf.Length);
+                var file = new FileInfo(Path.Combine(root.FullName, name));
+                using(Stream fs = file.Create())
+                {
+                    fs.Write(buf, 0, buf.Length);
+                }
             }
         }
     }

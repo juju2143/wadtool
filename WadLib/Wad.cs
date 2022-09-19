@@ -33,11 +33,15 @@ namespace WadTool.WadLib
             }
             return node.Files[dirs[dirs.Length-1]];
         }
+        public byte[] GetBytes(FileEntry f)
+        {
+            WadFile.Position = f.Offset;
+            return WadReader.ReadBytes((int)f.Size);
+        }
         public byte[] GetBytes(string path)
         {
             FileEntry f = GetFile(path);
-            WadFile.Position = f.Offset;
-            return WadReader.ReadBytes((int)f.Size);
+            return GetBytes(f);
         }
         public void WriteFile(string path, Stream stream)
         {
