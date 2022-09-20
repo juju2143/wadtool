@@ -47,7 +47,12 @@ that should "autocomplete" what we just wrote to *something* like `wadtool.exe`
 (Powershell shows `.\wadtool.exe` - it's exactly same thing as `wadtool.ext` so no worries!)
 when you press enter, we run the app, but this time it doesnt automatically closes down the terminal, we can read what it says!
 
------ REST TOMORROW -----
+----- TO ADD: -----
+- opening and finishing disk image using mkpsxiso: https://github.com/Lameguy64/mkpsxiso
+- merging `.bin` files because correct PSX image of MTVMG is split into 2 `.bin` files 
+- link to M2K guide
+- add more images
+- link some `.tim` & `.vag` tools
 
 ```
 wadtool --help
