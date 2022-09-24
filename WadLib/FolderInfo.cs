@@ -68,16 +68,14 @@ namespace WadTool.WadLib
             NumChildren = ind.ReadInt16();
             Offset = new OffsetSize(ind.ReadUInt32());
             Level = level;
-            Path = path;
+            Path = new List<string>(path);
             Path.Add(Name);
             if(!IsFileFolder)
             {
                 Folders = new List<FolderEntry>();
                 for(short i = Index; i < Index+NumChildren; i++)
                 {
-                    var p = Path;
-                    p.Add(Name);
-                    FolderEntry child = new FolderEntry(ind, wad, CurOffset+16*i, level+1, p);
+                    FolderEntry child = new FolderEntry(ind, wad, CurOffset+16*i, level+1, Path);
                     Folders.Add(child);
                     if(child.ParentLongName != null) LongName = child.ParentLongName;
                 }
@@ -110,14 +108,13 @@ namespace WadTool.WadLib
         {
             wad.BaseStream.Position = offset;
             Pointer = offset;
-            Path = path;
-            Path.Add(WadUtils.Decode(Name));
+            Path = new List<string>(path);
             NumFiles = wad.ReadUInt32();
             Files = new List<FileEntry>((int)NumFiles);
             for(uint i = 0; i < NumFiles; i++)
             {
                 FileEntry file = new FileEntry(wad);
-                file.Path = Path;
+                file.Path = new List<string>(Path);
                 Files.Add(file);
             }
             if(NumFiles > 0)
@@ -128,6 +125,7 @@ namespace WadTool.WadLib
                 for(int i = 1; i < NumFiles; i++)
                 {
                     Files[i].LongName = wad.ReadBytes(32);
+                    Files[i].Path.Add(Files[i].Name);
                 }
             }
         }

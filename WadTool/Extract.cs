@@ -16,6 +16,11 @@ namespace WadTool
                     Console.Error.WriteLine("{0} @ 0x{1:X} seems to lie outside the WAD, an empty file will be written unless -b is given", fe.LongName, fe.Offset);
                     if(bogus) return;
                 }
+                if(fe.Name.EndsWith(".lnk"))
+                {
+                    Console.Error.WriteLine("{0} @ 0x{1:X} seems to not be legitimate, garbage will be written unless -b is given", fe.LongName, fe.Offset);
+                    if(bogus) return;
+                }
                 byte[] buf = wp.GetBytes(fe);
                 if(!dryrun)
                 {
@@ -96,7 +101,7 @@ namespace WadTool
         }
         public static void ExtractTree(BinaryReader wad, FileEntry tree, DirectoryInfo root, bool dryrun, bool bogus)
         {
-            if(wad.BaseStream.Length < tree.Offset+tree.Size)
+            if(wad.BaseStream.Length < tree.Offset+tree.Size || tree.Name.EndsWith(".lnk"))
             {
                 if(bogus) return;
             }
