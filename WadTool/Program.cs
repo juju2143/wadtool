@@ -19,7 +19,7 @@ namespace WadTool
             rootCommand.AddCommand(treeCommand);
 
             var extractCommand = new Command("extract", "Extract from WAD");
-            var outputOption = new Option<FileSystemInfo>(new string[2]{"-o", "--output"}, "Output directory. If not specified, defaults to the current directory. Use - for stdout.") { IsRequired = false };
+            var outputOption = new Option<FileSystemInfo>(new string[2]{"-o", "--output"}, ()=>new DirectoryInfo(Directory.GetCurrentDirectory()), "Output directory. If not specified, defaults to the current directory. Use - for stdout.") { IsRequired = false };
             var namelistOption = new Option<bool>(new string[2]{"-n", "--namelist"}, "Include namelist");
             var bogusOption = new Option<bool>(new string[2]{"-b", "--no-bogus"}, "Avoid writing bogus files");
             var dryrunOption = new Option<bool>(new string[2]{"-d", "--dry-run"}, "Do not write files at all");

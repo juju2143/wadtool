@@ -29,7 +29,7 @@ namespace WadTool
                 }
             }
 
-            Console.WriteLine("Name: {0}", WadUtils.Decode(node.Name));
+            Console.WriteLine("Name: {0}", WadUtils.Decode(node.ShortName));
             if(node.LongName != null) Console.WriteLine("Long name: {0}", WadUtils.Decode(node.LongName));
 
             if(node.IsFileFolder)
@@ -43,7 +43,7 @@ namespace WadTool
                 for(int i = 0; i < node.Files.NumFiles; i++)
                 {
                     FileEntry child = node.Files.Files[i];
-                    Console.WriteLine("{0,8:X} {1,8} {2,8} {3}", child.Offset, WadUtils.Decode(child.Name), child.Size, WadUtils.Decode(child.LongName));
+                    Console.WriteLine("{0,8:X} {1,8} {2,8} {3}", child.Offset, WadUtils.Decode(child.ShortName), child.Size, WadUtils.Decode(child.LongName));
                 }
             }
             else
@@ -57,14 +57,14 @@ namespace WadTool
                     FolderEntry child = node.Folders[i];
                     if(child.IsFileFolder)
                     {
-                        Console.WriteLine("{0,6} {1,8} {2,8:X} {3,8} {4}", child.Index, WadUtils.Decode(child.Name), child.Offset.Offset, child.Offset.Size, WadUtils.Decode(child.LongName));
+                        Console.WriteLine("{0,6} {1,8} {2,8:X} {3,8} {4}", child.Index, WadUtils.Decode(child.ShortName), child.Offset.Offset, child.Offset.Size, WadUtils.Decode(child.LongName));
                     }
                     else
                     {
                         if(child.LongName != null)
-                            Console.WriteLine("{0,6} {1,8} {2,17} {3}", child.Index, WadUtils.Decode(child.Name), "", WadUtils.Decode(child.LongName));
+                            Console.WriteLine("{0,6} {1,8} {2,17} {3}", child.Index, WadUtils.Decode(child.ShortName), "", WadUtils.Decode(child.LongName));
                         else
-                            Console.WriteLine("{0,6} {1,8}", child.Index, WadUtils.Decode(child.Name));
+                            Console.WriteLine("{0,6} {1,8}", child.Index, WadUtils.Decode(child.ShortName));
                     }
                 }
             }

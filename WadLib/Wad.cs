@@ -11,16 +11,16 @@ namespace WadTool.WadLib
         public BinaryWriter IndWriter;
         public BinaryWriter WadWriter;
         public FolderInfo Index;
-        public WadPackage(string ind, string wad) : this(File.Open(ind, FileMode.OpenOrCreate, FileAccess.ReadWrite), File.Open(wad, FileMode.OpenOrCreate, FileAccess.ReadWrite)) {}
-        public WadPackage(FileInfo ind, FileInfo wad) : this(ind.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite), wad.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite)) {}
+        public WadPackage(string ind, string wad, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read) : this(File.Open(ind, mode, access), File.Open(wad, mode, access)) {}
+        public WadPackage(FileInfo ind, FileInfo wad, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read) : this(ind.Open(mode, access), wad.Open(mode, access)) {}
         public WadPackage(Stream ind, Stream wad)
         {
             IndFile = ind;
             WadFile = wad;
             IndReader = new BinaryReader(IndFile);
             WadReader = new BinaryReader(WadFile);
-            IndWriter = new BinaryWriter(IndFile);
-            WadWriter = new BinaryWriter(WadFile);
+            if(IndFile.CanWrite) IndWriter = new BinaryWriter(IndFile);
+            if(WadFile.CanWrite) WadWriter = new BinaryWriter(WadFile);
             Index = new FolderInfo(IndReader, WadReader);
         }
         public FileEntry GetFile(string path)

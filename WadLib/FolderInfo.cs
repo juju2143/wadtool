@@ -8,10 +8,14 @@ namespace WadTool.WadLib
         public UInt32 Unknown2;
         public UInt32 Unknown3;
         public FolderEntry RootFolder;
-        public FolderInfo(byte[] ind, byte[] wad) : this(new BinaryReader(new MemoryStream(ind)), new BinaryReader(new MemoryStream(wad))) {}
+        public FolderInfo()
+        {
+
+        }
+        public FolderInfo(byte[] ind, byte[] wad) : this(new MemoryStream(ind), new MemoryStream(wad)) {}
         public FolderInfo(string ind, string wad) : this(File.OpenRead(ind), File.OpenRead(wad)) {}
         public FolderInfo(FileInfo ind, FileInfo wad) : this(ind.OpenRead(), wad.OpenRead()) {}
-        public FolderInfo(FileStream ind, FileStream wad) : this(new BinaryReader(ind), new BinaryReader(wad)) {}
+        public FolderInfo(Stream ind, Stream wad) : this(new BinaryReader(ind), new BinaryReader(wad)) {}
         public FolderInfo(BinaryReader ind, BinaryReader wad)
         {
             Name = ind.ReadBytes(32);
@@ -24,7 +28,11 @@ namespace WadTool.WadLib
     }
     public class FolderEntry // 16 bytes
     {
-        public byte[] Name; // 8 bytes
+        public string Name
+        {
+            get => WadUtils.Decode(LongName == null ? ShortName : LongName);
+        }
+        public byte[] ShortName; // 8 bytes
         public byte[] LongName;
         public byte[] ParentLongName;
         public Int16 Index;
@@ -33,63 +41,83 @@ namespace WadTool.WadLib
         public List<FolderEntry> Folders;
         public FileList Files;
         public uint Level;
+        public List<string> Path;
         public bool IsFileFolder {
             get => NumChildren < 0;
         }
-        public FolderEntry(byte[] ind, byte[] wad) : this(new BinaryReader(new MemoryStream(ind)), new BinaryReader(new MemoryStream(wad))) {}
+        public FolderEntry()
+        {
+
+        }
+        public FolderEntry(byte[] ind, byte[] wad) : this(new MemoryStream(ind), new MemoryStream(wad)) {}
+        public FolderEntry(Stream ind, Stream wad) : this(new BinaryReader(ind), new BinaryReader(wad)) {}
         public FolderEntry(BinaryReader ind, BinaryReader wad)
         {
-            Read(ind, wad, 0);
+            Read(ind, wad, 0, new List<string>());
         }
-        public FolderEntry(BinaryReader ind, BinaryReader wad, long offset, uint level)
+        public FolderEntry(BinaryReader ind, BinaryReader wad, long offset, uint level, List<string> path)
         {
             ind.BaseStream.Position = offset;
-            Read(ind, wad, level);
+            Read(ind, wad, level, path);
         }
-        void Read(BinaryReader ind, BinaryReader wad, uint level)
+        void Read(BinaryReader ind, BinaryReader wad, uint level, List<string> path)
         {
             long CurOffset = ind.BaseStream.Position;
-            Name = ind.ReadBytes(8);
+            ShortName = ind.ReadBytes(8);
             Index = ind.ReadInt16();
             NumChildren = ind.ReadInt16();
             Offset = new OffsetSize(ind.ReadUInt32());
             Level = level;
+            Path = path;
+            Path.Add(Name);
             if(!IsFileFolder)
             {
                 Folders = new List<FolderEntry>();
                 for(short i = Index; i < Index+NumChildren; i++)
                 {
-                    FolderEntry child = new FolderEntry(ind, wad, CurOffset+16*i, level+1);
+                    var p = Path;
+                    p.Add(Name);
+                    FolderEntry child = new FolderEntry(ind, wad, CurOffset+16*i, level+1, p);
                     Folders.Add(child);
                     if(child.ParentLongName != null) LongName = child.ParentLongName;
                 }
             }
             else
             {
-                Files = new FileList(wad, Offset.Offset);
+                Files = new FileList(wad, Offset.Offset, Path);
                 LongName = Files.Name;
                 ParentLongName = Files.ParentName;
             }
         }
         public FolderEntry this[string index]
         {
-            get => Folders.Where(f => WadUtils.Decode(f.Name) == index || WadUtils.Decode(f.LongName!) == index).Single();
+            get => Folders.Where(f => WadUtils.Decode(f.ShortName) == index || WadUtils.Decode(f.LongName) == index).Single();
         }
     }
     public class FileList
     {
+        public long Pointer;
         public byte[] Name; // 32 bytes
         public byte[] ParentName; // 32 bytes
         public UInt32 NumFiles;
         public List<FileEntry> Files;
-        public FileList(BinaryReader wad, long offset)
+        public List<string> Path;
+        public FileList()
+        {
+
+        }
+        public FileList(BinaryReader wad, long offset, List<string> path)
         {
             wad.BaseStream.Position = offset;
+            Pointer = offset;
+            Path = path;
+            Path.Add(WadUtils.Decode(Name));
             NumFiles = wad.ReadUInt32();
             Files = new List<FileEntry>((int)NumFiles);
             for(uint i = 0; i < NumFiles; i++)
             {
                 FileEntry file = new FileEntry(wad);
+                file.Path = Path;
                 Files.Add(file);
             }
             if(NumFiles > 0)
@@ -105,20 +133,29 @@ namespace WadTool.WadLib
         }
         public FileEntry this[string index]
         {
-            get => Files.Where(f => WadUtils.Decode(f.Name) == index || WadUtils.Decode(f.LongName!) == index).Single();
+            get => Files.Where(f => WadUtils.Decode(f.ShortName) == index || WadUtils.Decode(f.LongName) == index).Single();
         }
     }
     public class FileEntry
     {
         public long Pointer;
-        public byte[] Name; // 8 bytes
+        public string Name
+        {
+            get => WadUtils.Decode(LongName == null ? ShortName : LongName);
+        }
+        public byte[] ShortName; // 8 bytes
         public byte[] LongName; // 32 bytes
         public UInt32 Offset;
         public UInt32 Size;
+        public List<string> Path;
+        public FileEntry()
+        {
+
+        }
         public FileEntry(BinaryReader wad)
         {
             Pointer = wad.BaseStream.Position;
-            Name = wad.ReadBytes(8);
+            ShortName = wad.ReadBytes(8);
             Offset = wad.ReadUInt32() << 11;
             Size = wad.ReadUInt32();
         }

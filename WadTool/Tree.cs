@@ -13,9 +13,9 @@ namespace WadTool
         public static void PrintTree(FolderEntry tree, string indent = "", bool last = true)
         {
             if(tree.LongName != null)
-                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.LongName), WadUtils.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.LongName), WadUtils.Decode(tree.ShortName));
             else
-                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.ShortName));
             indent += last ? "    " : "│   ";
             if(tree.IsFileFolder)
             {
@@ -32,9 +32,9 @@ namespace WadTool
         public static void PrintTree(FileEntry tree, string indent, bool last)
         {
             if(tree.LongName != null)
-                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.LongName), WadUtils.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2} ({3})", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.LongName), WadUtils.Decode(tree.ShortName));
             else
-                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.Name));
+                Console.WriteLine("{0}{1}{2}", indent, last ? "└── " : "├── ", WadUtils.Decode(tree.ShortName));
 
             Console.WriteLine("{0}{1}Offset: 0x{2:X}", indent, last ? "    " : "│   ", tree.Offset);
             Console.WriteLine("{0}{1}Size: 0x{2:X}", indent, last ? "    " : "│   ", tree.Size);

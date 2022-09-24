@@ -8,11 +8,6 @@ namespace WadTool
         {
             var wp = new WadPackage(ind, wad);
 
-            if(output == null)
-            {
-                output = new DirectoryInfo(Directory.GetCurrentDirectory());
-            }
-
             if(file != null)
             {
                 FileEntry fe = wp.GetFile(file);
@@ -80,19 +75,17 @@ namespace WadTool
         }
         public static void ExtractTree(BinaryReader wad, FolderEntry tree, DirectoryInfo root, bool namelist, bool dryrun, bool bogus)
         {
-            string name = tree.LongName != null ? WadUtils.Decode(tree.LongName) : WadUtils.Decode(tree.Name);
-
             DirectoryInfo subdir;
-            if(name == "" || dryrun)
+            if(tree.Name == "" || dryrun)
                 subdir = root;
             else
-                subdir = root.CreateSubdirectory(name);
+                subdir = root.CreateSubdirectory(tree.Name);
 
             if(tree.IsFileFolder)
             {
                 FileList list = tree.Files;
                 for(int i = 0; i < list.Files.Count; i++)
-                    if(WadUtils.Decode(list.Files[i].Name) != "NAMELIST" || namelist)
+                    if(list.Files[i].Name != "NAMELIST" || namelist)
                         ExtractTree(wad, list.Files[i], subdir, dryrun, bogus);
             }
             else
@@ -103,8 +96,6 @@ namespace WadTool
         }
         public static void ExtractTree(BinaryReader wad, FileEntry tree, DirectoryInfo root, bool dryrun, bool bogus)
         {
-            string name = tree.LongName != null ? WadUtils.Decode(tree.LongName) : WadUtils.Decode(tree.Name);
-
             if(wad.BaseStream.Length < tree.Offset+tree.Size)
             {
                 if(bogus) return;
@@ -114,7 +105,7 @@ namespace WadTool
 
             if(!dryrun)
             {
-                var file = new FileInfo(Path.Combine(root.FullName, name));
+                var file = new FileInfo(Path.Combine(root.FullName, tree.Name));
                 using(Stream fs = file.Create())
                 {
                     fs.Write(buf, 0, buf.Length);
