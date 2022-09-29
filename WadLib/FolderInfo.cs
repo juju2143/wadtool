@@ -10,7 +10,11 @@ namespace WadTool.WadLib
         public FolderEntry RootFolder;
         public FolderInfo()
         {
-
+            Name = WadUtils.ToLongName("Music 2");
+            Unknown1 = 0x110000;
+            FileSize = 0;
+            Unknown2 = 0x17e0;
+            Unknown3 = 5;
         }
         public FolderInfo(byte[] ind, byte[] wad) : this(new MemoryStream(ind), new MemoryStream(wad)) {}
         public FolderInfo(string ind, string wad) : this(File.OpenRead(ind), File.OpenRead(wad)) {}
@@ -28,6 +32,7 @@ namespace WadTool.WadLib
     }
     public class FolderEntry // 16 bytes
     {
+        public long Position;
         public string Name
         {
             get => WadUtils.Decode(LongName == null ? ShortName : LongName);
@@ -62,7 +67,7 @@ namespace WadTool.WadLib
         }
         void Read(BinaryReader ind, BinaryReader wad, uint level, List<string> path)
         {
-            long CurOffset = ind.BaseStream.Position;
+            Position = ind.BaseStream.Position;
             ShortName = ind.ReadBytes(8);
             Index = ind.ReadInt16();
             NumChildren = ind.ReadInt16();
@@ -75,7 +80,7 @@ namespace WadTool.WadLib
                 Folders = new List<FolderEntry>();
                 for(short i = Index; i < Index+NumChildren; i++)
                 {
-                    FolderEntry child = new FolderEntry(ind, wad, CurOffset+16*i, level+1, Path);
+                    FolderEntry child = new FolderEntry(ind, wad, Position+16*i, level+1, Path);
                     Folders.Add(child);
                     if(child.ParentLongName != null) LongName = child.ParentLongName;
                 }
