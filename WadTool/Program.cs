@@ -9,18 +9,18 @@ namespace WadTool
     }
     partial class Program
     {
-        public static Func<FileInfo> GetCDROM(string file)
+        public static Func<FileInfo> GetCDROM(params string[] file)
         {
             var firstdrive = DriveInfo.GetDrives().Where(x => x.DriveType == DriveType.CDRom && x.IsReady).FirstOrDefault();
             if(firstdrive == null) return null;
-            return ()=>new FileInfo(Path.Combine(firstdrive.RootDirectory.FullName, "wads", file));
+            return ()=>new FileInfo(Path.Combine(file.Prepend(firstdrive.RootDirectory.FullName).ToArray()));
         }
         public static int Main(string[] argv)
         {
             var rootCommand = new RootCommand("MTVMG/Music 2000 IND/WAD tool");
 
-            var indOption = new Option<FileInfo>(new string[2]{"-i", "--ind"}, GetCDROM("andy.ind"), "IND file");
-            var wadOption = new Option<FileInfo>(new string[2]{"-w", "--wad"}, GetCDROM("andy.wad"), "WAD file");
+            var indOption = new Option<FileInfo>(new string[2]{"-i", "--ind"}, GetCDROM("wads", "andy.ind"), "IND file");
+            var wadOption = new Option<FileInfo>(new string[2]{"-w", "--wad"}, GetCDROM("wads", "andy.wad"), "WAD file");
 
             rootCommand.AddGlobalOption(indOption);
             rootCommand.AddGlobalOption(wadOption);
