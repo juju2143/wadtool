@@ -1,9 +1,20 @@
+using System.CommandLine;
 using WadTool.WadLib;
 
 namespace WadTool
 {
     partial class Program
     {
+        [CommandSetup]
+        public static Command SetupDir(Option<FileInfo> indOption, Option<FileInfo> wadOption)
+        {
+            var dirCommand = new Command("dir", "Directory structure");
+            dirCommand.AddAlias("ls");
+            var pathArgument = new Argument<string>("path", "File path") { Arity = ArgumentArity.ZeroOrOne };
+            dirCommand.AddArgument(pathArgument);
+            dirCommand.SetHandler(Dir, indOption, wadOption, pathArgument);
+            return dirCommand;
+        }
         public static void Dir(FileInfo ind, FileInfo wad, string path)
         {
             var wp = new WadPackage(ind, wad);

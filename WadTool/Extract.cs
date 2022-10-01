@@ -1,9 +1,27 @@
+using System.CommandLine;
 using WadTool.WadLib;
 
 namespace WadTool
 {
     partial class Program
     {
+        [CommandSetup]
+        public static Command SetupExtract(Option<FileInfo> indOption, Option<FileInfo> wadOption)
+        {
+            var extractCommand = new Command("extract", "Extract from WAD");
+            var outputOption = new Option<FileSystemInfo>(new string[2]{"-o", "--output"}, ()=>new DirectoryInfo(Directory.GetCurrentDirectory()), "Output directory. If not specified, defaults to the current directory. Use - for stdout.") { IsRequired = false };
+            var namelistOption = new Option<bool>(new string[2]{"-n", "--namelist"}, "Include namelist");
+            var bogusOption = new Option<bool>(new string[2]{"-b", "--no-bogus"}, "Avoid writing bogus files");
+            var dryrunOption = new Option<bool>(new string[2]{"-d", "--dry-run"}, "Do not write files at all");
+            var fileArgument = new Argument<string>("file", "File to extract from WAD. With no file specified, extracts the entire directory structure to output directory.") { Arity = ArgumentArity.ZeroOrOne };
+            extractCommand.AddOption(outputOption);
+            extractCommand.AddOption(namelistOption);
+            extractCommand.AddOption(bogusOption);
+            extractCommand.AddOption(dryrunOption);
+            extractCommand.AddArgument(fileArgument);
+            extractCommand.SetHandler(Extract, indOption, wadOption, outputOption, namelistOption, bogusOption, dryrunOption, fileArgument);
+            return extractCommand;
+        }
         public static void Extract(FileInfo ind, FileInfo wad, FileSystemInfo output, bool namelist, bool bogus, bool dryrun, string file)
         {
             var wp = new WadPackage(ind, wad);

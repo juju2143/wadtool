@@ -1,9 +1,17 @@
+using System.CommandLine;
 using WadTool.WadLib;
 
 namespace WadTool
 {
     partial class Program
     {
+        [CommandSetup]
+        public static Command SetupTree(Option<FileInfo> indOption, Option<FileInfo> wadOption)
+        {
+            var treeCommand = new Command("tree", "Print the file tree");
+            treeCommand.SetHandler(Tree, indOption, wadOption);
+            return treeCommand;
+        }
         public static void Tree(FileInfo ind, FileInfo wad)
         {
             var wp = new WadPackage(ind, wad);
