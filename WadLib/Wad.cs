@@ -99,10 +99,7 @@ namespace WadTool.WadLib
                 Folders = new List<FolderEntry>(),
                 Path = new List<string>(),
             };
-
             IndOffset += 0x10;
-
-            //Console.WriteLine("{0}/{1}", String.Join('/', fe.Path), fe.Name);
 
             fe.Folders = CreateFolderEntries(dir, fe);
             fe.NumChildren = (short)fe.Folders.Count;
@@ -167,14 +164,25 @@ namespace WadTool.WadLib
                     Name = WadUtils.ToLongName(dir.Name),
                     ParentName = root.LongName,
                     Path = path,
-                    NumFiles = (uint)info.Length,
+                    NumFiles = (uint)info.Length+1,
                 };
                 root.Files = fl;
-                var size = 0x10*info.Length+4;
+                var size = 0x10*fl.NumFiles+4;
                 root.Offset.Offset = (uint)WadOffset;
                 root.Offset.Size = (uint)size;
                 WadOffset += WadUtils.ToBlockSize(size);
                 fl.Files = new List<FileEntry>(info.Length);
+
+                var longsize = 0x20*(fl.NumFiles+1);
+                var namelist = new FileEntry(){
+                    Pointer = WadOffset,
+                    ShortName = WadUtils.ToShortName("NAMELIST"),
+                    LongName = WadUtils.ToLongName(""),
+                    Size = longsize,
+                    Path = path,
+                };
+                WadOffset += WadUtils.ToBlockSize(longsize);
+                fl.Files.Add(namelist);
 
                 foreach(FileInfo item in info)
                 {
