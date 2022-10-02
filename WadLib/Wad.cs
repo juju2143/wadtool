@@ -56,7 +56,7 @@ namespace WadTool.WadLib
         public void WriteFile(string path, Stream stream)
         {
             var file = GetFile(path);
-            int blocksize = (int)Math.Ceiling(file.Size/2048.0)*2048;
+            var blocksize = WadUtils.ToBlockSize(file.Size);
             if(stream.Length <= blocksize)
             {
                 byte[] clear = new byte[blocksize];
@@ -71,8 +71,7 @@ namespace WadTool.WadLib
                 WadFile.Seek(file.Pointer + 12, SeekOrigin.Begin);
                 WadFile.Write(size);
 
-                WadFile.Seek(file.Pointer + 12, SeekOrigin.Begin);
-                WadFile.Write(size);
+                WadFile.Flush();
             }
             else
             {
@@ -105,6 +104,7 @@ namespace WadTool.WadLib
             fe.NumChildren = (short)fe.Folders.Count;
 
             fi.RootFolder = fe;
+            fi.FileSize = (uint)IndOffset+4;
 
             return fi;
         }
