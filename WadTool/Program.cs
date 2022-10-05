@@ -12,8 +12,8 @@ namespace WadTool
         public static Func<FileInfo> GetCDROM(params string[] file)
         {
             var firstdrive = DriveInfo.GetDrives().Where(x => x.DriveType == DriveType.CDRom && x.IsReady).FirstOrDefault();
-            if(firstdrive == null) return null;
-            return ()=>new FileInfo(Path.Combine(file.Prepend(firstdrive.RootDirectory.FullName).ToArray()));
+            var drive = firstdrive == null ? Directory.GetCurrentDirectory() : firstdrive.RootDirectory.FullName;
+            return ()=>new FileInfo(Path.Combine(file.Prepend(drive).ToArray()));
         }
         public static int Main(string[] argv)
         {
