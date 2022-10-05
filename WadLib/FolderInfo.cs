@@ -2,20 +2,15 @@ namespace WadTool.WadLib
 {
     public class FolderInfo
     {
-        public byte[] Name; // 0x20 bytes
-        public UInt32 Unknown1;
-        public UInt32 FileSize;
-        public UInt32 Unknown2;
-        public UInt32 Unknown3;
+        public byte[] Name = WadUtils.ToLongName("Music 2"); // 0x20 bytes
+        public UInt32 Unknown1 = 0x190000;
+        public UInt32 FileSize = 0;
+        public UInt32 Unknown2 = 0x17e0;
+        public UInt32 Unknown3 = 5;
+        public UInt32 Padding = 0x34343434;
         public FolderEntry RootFolder;
-        public FolderInfo()
-        {
-            Name = WadUtils.ToLongName("Music 2");
-            Unknown1 = 0x110000;
-            FileSize = 0;
-            Unknown2 = 0x17e0;
-            Unknown3 = 5;
-        }
+        public long WadSize = 0;
+        public FolderInfo() {}
         public FolderInfo(byte[] ind, byte[] wad) : this(new MemoryStream(ind), new MemoryStream(wad)) {}
         public FolderInfo(string ind, string wad) : this(File.OpenRead(ind), File.OpenRead(wad)) {}
         public FolderInfo(FileInfo ind, FileInfo wad) : this(ind.OpenRead(), wad.OpenRead()) {}
@@ -27,7 +22,20 @@ namespace WadTool.WadLib
             FileSize = ind.ReadUInt32();
             Unknown2 = ind.ReadUInt32();
             Unknown3 = ind.ReadUInt32();
+            WadSize = wad.BaseStream.Length;
             RootFolder = new FolderEntry(ind, wad);
+        }
+        public void Write(BinaryWriter ind)
+        {
+            ind.BaseStream.Seek(0, SeekOrigin.Begin);
+            ind.Write(Name);
+            ind.Write(Unknown1);
+            ind.Write(FileSize);
+            ind.Write(Unknown2);
+            ind.Write(Unknown3);
+            ind.BaseStream.Seek(FileSize-4, SeekOrigin.Begin);
+            ind.Write(Padding);
+            WadUtils.WritePadding(ind, 2);
         }
     }
     public class FolderEntry // 16 bytes
@@ -50,10 +58,7 @@ namespace WadTool.WadLib
         public bool IsFileFolder {
             get => NumChildren < 0;
         }
-        public FolderEntry()
-        {
-
-        }
+        public FolderEntry() {}
         public FolderEntry(byte[] ind, byte[] wad) : this(new MemoryStream(ind), new MemoryStream(wad)) {}
         public FolderEntry(Stream ind, Stream wad) : this(new BinaryReader(ind), new BinaryReader(wad)) {}
         public FolderEntry(BinaryReader ind, BinaryReader wad)
@@ -71,7 +76,7 @@ namespace WadTool.WadLib
             ShortName = ind.ReadBytes(8);
             Index = ind.ReadInt16();
             NumChildren = ind.ReadInt16();
-            Offset = new OffsetSize(ind.ReadUInt32());
+            Offset = ind.ReadUInt32();
             Level = level;
             Path = new List<string>(path);
             Path.Add(Name);
@@ -96,6 +101,14 @@ namespace WadTool.WadLib
         {
             get => Folders.Where(f => WadUtils.Decode(f.ShortName) == index || WadUtils.Decode(f.LongName) == index).Single();
         }
+        public void Write(BinaryWriter ind)
+        {
+            ind.BaseStream.Seek(Position, SeekOrigin.Begin);
+            ind.Write(ShortName);
+            ind.Write(Index);
+            ind.Write(NumChildren);
+            ind.Write(Offset);
+        }
     }
     public class FileList
     {
@@ -105,10 +118,7 @@ namespace WadTool.WadLib
         public UInt32 NumFiles;
         public List<FileEntry> Files;
         public List<string> Path;
-        public FileList()
-        {
-
-        }
+        public FileList() {}
         public FileList(BinaryReader wad, long offset, List<string> path)
         {
             wad.BaseStream.Position = offset;
@@ -138,6 +148,22 @@ namespace WadTool.WadLib
         {
             get => Files.Where(f => WadUtils.Decode(f.ShortName) == index || WadUtils.Decode(f.LongName) == index).Single();
         }
+        public void Write(BinaryWriter wad)
+        {
+            wad.BaseStream.Seek(Pointer, SeekOrigin.Begin);
+            wad.Write(NumFiles);
+        }
+        public void WriteNamelist(BinaryWriter wad)
+        {
+            var file = this["NAMELIST"];
+            wad.BaseStream.Seek(file.Offset, SeekOrigin.Begin);
+            wad.Write(ParentName);
+            wad.Write(Name);
+            for(int i = 1; i < NumFiles; i++)
+            {
+                wad.Write(Files[i].LongName);
+            }
+        }
     }
     public class FileEntry
     {
@@ -151,10 +177,7 @@ namespace WadTool.WadLib
         public UInt32 Offset;
         public UInt32 Size;
         public List<string> Path;
-        public FileEntry()
-        {
-
-        }
+        public FileEntry() {}
         public FileEntry(BinaryReader wad)
         {
             Pointer = wad.BaseStream.Position;
@@ -166,6 +189,18 @@ namespace WadTool.WadLib
         {
             wad.BaseStream.Position = Offset;
             return wad.ReadBytes((int)Size);
+        }
+        public void Write(BinaryWriter wad)
+        {
+            wad.BaseStream.Seek(Pointer, SeekOrigin.Begin);
+            wad.Write(ShortName);
+            wad.Write(Offset >> 11);
+            wad.Write(Size);
+        }
+        public void WriteFile(Stream wad, Stream file)
+        {
+            wad.Seek(Offset, SeekOrigin.Begin);
+            file.CopyTo(wad);
         }
     }
 }

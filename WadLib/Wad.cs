@@ -91,9 +91,10 @@ namespace WadTool.WadLib
                 Position = IndOffset,
                 ShortName = WadUtils.ToShortName(""),
                 LongName = WadUtils.ToLongName(""),
+                ParentLongName = WadUtils.ToLongName(""),
                 Index = -1,
-                NumChildren = -1,
-                Offset = new OffsetSize(),
+                NumChildren = -32768,
+                Offset = 0x7FFFFu,
                 Level = 0,
                 Folders = new List<FolderEntry>(),
                 Path = new List<string>(),
@@ -105,6 +106,7 @@ namespace WadTool.WadLib
 
             fi.RootFolder = fe;
             fi.FileSize = (uint)IndOffset+4;
+            fi.WadSize = WadOffset;
 
             return fi;
         }
@@ -125,7 +127,7 @@ namespace WadTool.WadLib
                 
                 root.Index = (short)((IndOffset - root.Position) >> 4);
 
-                short idx = -1;
+                short idx = (short)((root.Position - IndOffset) >> 4);
                 foreach (DirectoryInfo item in info)
                 {
                     byte[] sname;
@@ -139,9 +141,10 @@ namespace WadTool.WadLib
                         Position = IndOffset,
                         ShortName = sname,
                         LongName = WadUtils.ToLongName(item.Name),
+                        ParentLongName = root.LongName,
                         Index = idx--,
-                        NumChildren = -1,
-                        Offset = new OffsetSize(),
+                        NumChildren = -32768,
+                        Offset = 0x7FFFFu,
                         Level = root.Level+1,
                         Folders = new List<FolderEntry>(),
                         Path = path,
@@ -158,30 +161,31 @@ namespace WadTool.WadLib
             }
             else
             {
-                info = dir.GetFiles().OrderBy(x => x.Name).ToArray();
+                info = dir.GetFiles().Where(x => x.Name != "NAMELIST").OrderBy(x => x.Name).ToArray();
                 var fl = new FileList(){
                     Pointer = WadOffset,
                     Name = WadUtils.ToLongName(dir.Name),
-                    ParentName = root.LongName,
+                    ParentName = root.ParentLongName,
                     Path = path,
                     NumFiles = (uint)info.Length+1,
                 };
                 root.Files = fl;
-                var size = 0x10*fl.NumFiles+4;
                 root.Offset.Offset = (uint)WadOffset;
-                root.Offset.Size = (uint)size;
-                WadOffset += WadUtils.ToBlockSize(size);
+                root.Offset.Size = ((uint)info.Length+1) << 11;
+                var size = 0x10*fl.NumFiles+4;
+                WadOffset = WadUtils.ToBlockSize(WadOffset + size);
                 fl.Files = new List<FileEntry>(info.Length);
 
                 var longsize = 0x20*(fl.NumFiles+1);
                 var namelist = new FileEntry(){
-                    Pointer = WadOffset,
+                    Pointer = fl.Pointer+4,
+                    Offset = (uint)WadOffset,
                     ShortName = WadUtils.ToShortName("NAMELIST"),
                     LongName = WadUtils.ToLongName(""),
                     Size = longsize,
                     Path = path,
                 };
-                WadOffset += WadUtils.ToBlockSize(longsize);
+                WadOffset = WadUtils.ToBlockSize(WadOffset + longsize);
                 fl.Files.Add(namelist);
 
                 foreach(FileInfo item in info)
@@ -194,17 +198,57 @@ namespace WadTool.WadLib
                     }
                     while(fl.Files.Count(x => x.ShortName.SequenceEqual(sname)) > 0);
                     var fe = new FileEntry(){
-                        Pointer = WadOffset,
+                        Pointer = fl.Pointer+4+0x10*fl.Files.Count(),
+                        Offset = (uint)WadOffset,
                         ShortName = sname,
                         LongName = WadUtils.ToLongName(item.Name),
                         Size = (uint)item.Length,
                         Path = path,
                     };
-                    WadOffset += WadUtils.ToBlockSize(item.Length);
+                    WadOffset = WadUtils.ToBlockSize(WadOffset + item.Length);
                     fl.Files.Add(fe);
                 }
 
                 return null;
+            }
+        }
+        public void WriteWad(DirectoryInfo dir)
+        {
+            IndFile.SetLength(0);
+            WadFile.SetLength(0);
+            IndFile.SetLength(Index.FileSize + 0x1000);
+            WadFile.SetLength(Index.WadSize);
+
+            Index.Write(IndWriter);
+            WriteFolderWad(Index.RootFolder, dir);
+            
+            IndFile.Flush();
+            WadFile.Flush();
+        }
+        void WriteFolderWad(FolderEntry folder, DirectoryInfo dir)
+        {
+            folder.Write(IndWriter);
+            if(folder.Folders != null)
+            {
+                foreach (var f in folder.Folders)
+                {
+                    WriteFolderWad(f, dir.GetDirectories().Where(x => x.Name == f.Name).First());
+                }
+            }
+            if(folder.Files != null)
+            {
+                var files = folder.Files.Files;
+                folder.Files.Write(WadWriter);
+                foreach (var f in files)
+                {
+                    f.Write(WadWriter);
+                }
+                folder.Files.WriteNamelist(WadWriter);
+                foreach (var f in files.Where(x => x.Name != "NAMELIST"))
+                {
+                    var file = dir.GetFiles().Where(x => x.Name == f.Name).FirstOrDefault();
+                    if(file != null) f.WriteFile(WadFile, file.OpenRead());
+                }
             }
         }
     }
