@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace WadTool.WadLib
 {
     public class WadPackage
@@ -181,7 +179,7 @@ namespace WadTool.WadLib
                     Pointer = fl.Pointer+4,
                     Offset = (uint)WadOffset,
                     ShortName = WadUtils.ToShortName("NAMELIST"),
-                    LongName = WadUtils.ToLongName(""),
+                    LongName = null,
                     Size = longsize,
                     Path = path,
                 };
@@ -204,6 +202,7 @@ namespace WadTool.WadLib
                         LongName = WadUtils.ToLongName(item.Name),
                         Size = (uint)item.Length,
                         Path = path,
+                        File = item,
                     };
                     WadOffset = WadUtils.ToBlockSize(WadOffset + item.Length);
                     fl.Files.Add(fe);
@@ -212,7 +211,7 @@ namespace WadTool.WadLib
                 return null;
             }
         }
-        public void WriteWad(DirectoryInfo dir)
+        public void WriteWad()
         {
             IndFile.SetLength(0);
             WadFile.SetLength(0);
@@ -220,19 +219,19 @@ namespace WadTool.WadLib
             WadFile.SetLength(Index.WadSize);
 
             Index.Write(IndWriter);
-            WriteFolderWad(Index.RootFolder, dir);
+            WriteFolderWad(Index.RootFolder);
             
             IndFile.Flush();
             WadFile.Flush();
         }
-        void WriteFolderWad(FolderEntry folder, DirectoryInfo dir)
+        void WriteFolderWad(FolderEntry folder)
         {
             folder.Write(IndWriter);
             if(folder.Folders != null)
             {
                 foreach (var f in folder.Folders)
                 {
-                    WriteFolderWad(f, dir.GetDirectories().Where(x => x.Name == f.Name).First());
+                    WriteFolderWad(f);
                 }
             }
             if(folder.Files != null)
@@ -246,8 +245,7 @@ namespace WadTool.WadLib
                 folder.Files.WriteNamelist(WadWriter);
                 foreach (var f in files.Where(x => x.Name != "NAMELIST"))
                 {
-                    var file = dir.GetFiles().Where(x => x.Name == f.Name).FirstOrDefault();
-                    if(file != null) f.WriteFile(WadFile, file.OpenRead());
+                    f.WriteFile(WadFile);
                 }
             }
         }

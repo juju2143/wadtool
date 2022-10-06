@@ -17,7 +17,7 @@ namespace WadTool
         public static void Create(FileInfo ind, FileInfo wad, DirectoryInfo dir)
         {
             var wp = new WadPackage(ind, wad, dir);
-            wp.WriteWad(dir);
+            wp.WriteWad();
         }
     }
 }

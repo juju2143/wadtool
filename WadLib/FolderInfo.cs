@@ -177,6 +177,7 @@ namespace WadTool.WadLib
         public UInt32 Offset;
         public UInt32 Size;
         public List<string> Path;
+        public FileInfo File;
         public FileEntry() {}
         public FileEntry(BinaryReader wad)
         {
@@ -196,6 +197,12 @@ namespace WadTool.WadLib
             wad.Write(ShortName);
             wad.Write(Offset >> 11);
             wad.Write(Size);
+        }
+        public void WriteFile(Stream wad)
+        {
+            var file = File.OpenRead();
+            wad.Seek(Offset, SeekOrigin.Begin);
+            file.CopyTo(wad);
         }
         public void WriteFile(Stream wad, Stream file)
         {
